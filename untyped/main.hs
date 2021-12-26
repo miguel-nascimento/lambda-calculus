@@ -1,7 +1,19 @@
-module Lambda.Interp where
+module ByValue where
 
 import qualified Data.Map as Map
-import Lambda.Syntax
+
+type Name = String
+
+data Expr
+  = Var Name
+  | Lamb Name Expr -- Lamb is the Abstraction
+  | App Expr Expr
+  | Lit Int -- Lit is the way to have a Haskell type in the lc
+  | Prim PrimOp Expr Expr
+  deriving (Show)
+
+data PrimOp = Add | Mult
+  deriving (Show)
 
 data Value = VInt Int | VClosure Name Expr Env
   deriving (Show)
@@ -29,3 +41,6 @@ interpOp op _ _ = error "only VInt"
 
 lambSum :: Int -> Int -> Expr
 lambSum x y = App (App (Lamb "x" (Lamb "y" (Prim Add (Var "x") (Var "y")))) (Lit x)) (Lit y)
+
+main :: IO ()
+main = print $ interp (lambSum 210 210) Map.empty
